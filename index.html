@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Golden 22 — Interactive Production</title>
+
+<!-- =========================================================
+     FONTS
+     ========================================================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- =========================================================
+     CSS
+     ========================================================= -->
+
+<style>
+
+:root {
+    --bg: #090806;
+    --panel: #15120e;
+    --gold: #d9b76a;
+    --gold-light: #f0d58d;
+    --cream: #f4ead4;
+    --muted: #a99e8a;
+    --red: #5f1619;
+}
+
+/* ---------------------------------------------------------
+   GENERAL
+   --------------------------------------------------------- */
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--cream);
+    font-family: Inter, Arial, sans-serif;
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            #241b10 0,
+            #090806 48%,
+            #050504 100%
+        );
+}
+
+/* Subtle film grain */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image:
+        radial-gradient(#fff 0.5px, transparent 0.5px);
+    background-size: 5px 5px;
+}
+
+/* ---------------------------------------------------------
+   SCREEN SYSTEM
+   --------------------------------------------------------- */
+.screen {
+    display: none;
+    min-height: 100vh;
+    padding: 36px 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+.container {
+    width: min(900px, 100%);
+    text-align: center;
+}
+
+/* ---------------------------------------------------------
+   TYPOGRAPHY
+   --------------------------------------------------------- */
+
+.kicker {
+    font-family: Cinzel, serif;
+    letter-spacing: 4px;
+    color: var(--gold);
+    font-size: 12px;
+}
+
+h1,
+h2,
+h3 {
+    font-family: Cinzel, serif;
+    margin: 10px 0;
+}
+
+h1 {
+    font-size: clamp(42px, 9vw, 86px);
+    color: var(--gold-light);
+    letter-spacing: 3px;
+}
+
+h2 {
+    font-size: clamp(28px, 5vw, 48px);
+}
+
+.subtitle {
+    font-family: "Playfair Display", serif;
+    font-style: italic;
+    color: #d2c4ab;
+    font-size: 20px;
+}
+
+.divider {
+    width: 120px;
+    height: 1px;
+    background: var(--gold);
+    margin: 28px auto;
+}
+
+.small {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.quote {
+    font-family: "Playfair Display", serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.5;
+    color: #d5c8b0;
+}
+
+/* ---------------------------------------------------------
+   BUTTONS
+   --------------------------------------------------------- */
+
+button {
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--cream);
+    padding: 15px 25px;
+    cursor: pointer;
+    font: 600 12px Inter;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: 0.25s;
+    margin: 8px;
+}
+
+button:hover {
+    background: var(--gold);
+    color: #0a0805;
+    transform: translateY(-2px);
+}
+
+/* ---------------------------------------------------------
+   PROGRESS BAR
+   --------------------------------------------------------- */
+.progress {
+    height: 3px;
+    background: #332b1e;
+    margin: 25px 0 35px;
+}
+
+.progress > div {
+    height: 100%;
+    width: 0%;
+    background: var(--gold);
+    transition: 0.4s;
+}
+
+/* ---------------------------------------------------------
+   QUESTION CARD
+   --------------------------------------------------------- */
+.question-card {
+    background: rgba(21, 18, 14, 0.94);
+    border: 1px solid #4c3d25;
+    padding: 35px;
+    text-align: left;
+    box-shadow: 0 20px 60px #000;
+}
+
+.qmeta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.question {
+    font:
+        500 clamp(23px, 4vw, 36px)
+        "Playfair Display";
+    line-height: 1.3;
+    margin: 25px 0 30px;
+}
+
+/* ---------------------------------------------------------
+   ANSWER OPTIONS
+   --------------------------------------------------------- */
+.options {
+    display: grid;
+    gap: 12px;
+}
+
+.option {
+    width: 100%;
+    text-align: left;
+    margin: 0;
+    padding: 17px 18px;
+    border-color: #493d2b;
+    text-transform: none;
+    letter-spacing: 0.3px;
+    font-size: 14px;
+}
+
+.option.correct {
+    border-color: #c7aa62;
+    background: #3b301d;
+}
+
+.option.wrong {
+    border-color: #6d2428;
+    background: #301416;
+}
+
+.feedback {
+    min-height: 24px;
+    color: var(--gold-light);
+    margin-top: 18px;
+    font-family: "Playfair Display", serif;
+    font-style: italic;
+}
+
+.next {
+    display: none;
+    margin-top: 15px;
+}
+
+.next.show {
+    display: inline-block;
+}
+
+/* ---------------------------------------------------------
+   FINAL SCORE
+   --------------------------------------------------------- */
+
+.final-box {
+    padding: 45px 25px;
+    border: 1px solid #765d2f;
+    background: #11100c;
+}
+
+.score {
+    font:
+        700 64px Cinzel;
+    color: var(--gold-light);
+}
+
+.cert {
+    font:
+        700 28px Cinzel;
+    color: var(--gold);
+    margin: 15px;
+}
+
+/* ---------------------------------------------------------
+   CONFETTI
+   --------------------------------------------------------- */
+#confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+    .question-card {
+        padding: 24px;
+    }
+    .ticket-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* =========================================================
+   MUSIC
+   ========================================================= */
+
+.music-toggle {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1000;
+
+    margin: 0;
+    padding: 10px 14px;
+
+    border: 1px solid rgba(217,183,106,.55);
+    background: rgba(9,8,6,.86);
+    color: var(--gold-light);
+
+    font: 600 10px Inter, sans-serif;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+
+    backdrop-filter: blur(8px);
+}
+
+.music-toggle:hover {
+    background: var(--gold);
+    color: #090806;
+}
+
+
+/* =========================================================
+   CINEMATIC SCENE TRANSITION
+   ========================================================= */
+
+.scene-transition {
+    position: fixed;
+    inset: 0;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            #241b10 0,
+            #090806 45%,
+            #050504 100%
+        );
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity .45s ease,
+        visibility .45s ease;
+}
+
+.scene-transition.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.transition-inner {
+    width: min(800px, 88%);
+
+    transform: translateY(18px);
+    opacity: 0;
+
+    transition:
+        transform .7s ease,
+        opacity .7s ease;
+}
+
+.scene-transition.show .transition-inner {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.transition-kicker {
+    font-family: Cinzel, serif;
+    color: var(--gold);
+
+    font-size: 12px;
+    letter-spacing: 5px;
+}
+
+.transition-title {
+    margin-top: 16px;
+
+    font-family: Cinzel, serif;
+
+    font-size: clamp(36px, 8vw, 76px);
+
+    color: var(--gold-light);
+
+    letter-spacing: 3px;
+}
+
+.transition-rule {
+    width: 110px;
+    height: 1px;
+
+    margin: 25px auto 0;
+
+    background: var(--gold);
+}
+     
+</style>
+     
+</head>
+
+<body>
+<!-- =========================================================
+     THEATRICAL AUDIO
+     ========================================================= -->
+
+<audio id="bgMusic" preload="auto"></audio>
+
+<button id="musicToggle" class="music-toggle" type="button">
+    ♫ MUSIC ON
+</button>
+
+<div id="sceneTransition" class="scene-transition" aria-hidden="true">
+    <div class="transition-inner">
+        <div class="transition-kicker" id="transitionKicker">
+            ACT III
+        </div>
+
+        <div class="transition-title" id="transitionTitle">
+            THE AUDITION
+        </div>
+
+        <div class="transition-rule"></div>
+    </div>
+</div>
+     
+<!-- =========================================================
+     CONFETTI CANVAS
+     ========================================================= -->
+<canvas id="confetti"></canvas>
+
+
+<!-- =========================================================
+     SCREEN 1 — OPENING
+     ========================================================= -->
+
+<section id="intro" class="screen active">
+    <div class="container">
+        <div class="kicker">
+            AN ORIGINAL PRODUCTION
+        </div>
+        <h1>
+            THE GOLDEN 22
+        </h1>
+        <div class="subtitle">
+            A theatrical production based on the
+            very important occasion of Shaurya's 22nd birthday.
+        </div>
+
+        <div class="divider"></div>
+        <p
+            style="
+            font-family:'Playfair Display';
+            font-style:italic;
+            font-size:18px;
+            color:#d2c4ab;
+            "
+        >
+            Written & Directed by Simran Padhy
+        </p>
+
+        <button onclick="enterTheatre()">
+             Enter the Theatre
+        </button>
+    </div>
+</section>
+
+<!-- =========================================================
+     SCREEN 2 — GAME INTRO
+     ========================================================= -->
+
+<section id="act0" class="screen">
+
+<div class="container">
+    <div class="kicker">
+      THE FINAL PLAY OF ACT III
+    </div>
+    <h2>
+        THE GOLDEN 22 QUIZ
+    </h2>
+    <div class="divider"></div>
+
+    <p class="subtitle">
+        You have survived the birthday.
+        You have collected the stupid little things.
+        You have also received the Director’s grand gestures of affection.
+    </p>
+
+    <p class="quote">
+        “But before you reach the finale…
+        we need to establish one thing.”
+    </p>
+
+    <h3
+        style="
+        color:var(--gold-light);
+        margin-top:35px;
+        "
+    >
+        HOW WELL DO YOU ACTUALLY KNOW THE THREE SUBJECTS: YOU, I & US?
+    </h3>
+
+
+    <p class="small">
+        22 QUESTIONS. 3 SCENES. 
+        <br>
+        Are you ready for it?
+    </p>
+
+    <button onclick="startGame()">
+        Begin the Audition
+    </button>
+
+</div>
+
+</section>
+
+<!-- =========================================================
+     SCREEN 3 — QUESTIONS
+     ========================================================= -->
+
+<section id="game" class="screen">
+<div class="container">
+    <div
+        class="kicker"
+        id="actLabel"
+    >
+      
+        SCENE I — SHAURYA <3
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress">
+        <div id="bar"></div>
+    </div>
+
+    <div class="question-card">
+        <div class="qmeta">
+            <span id="qnum">
+                QUESTION 01 / 22
+            </span>
+            <span id="scoreTop">
+                SCORE: 0
+            </span>
+        </div>
+      
+        <!-- QUESTION -->
+
+        <div
+            class="question"
+            id="question"
+        ></div>
+
+        <!-- OPTIONS -->
+
+        <div
+            class="options"
+            id="options"
+        ></div>
+
+        <!-- FEEDBACK -->
+
+        <div
+            class="feedback"
+            id="feedback"
+        ></div>
+
+        <!-- NEXT -->
+
+        <button
+            class="next"
+            id="next"
+            onclick="nextQuestion()"
+        >
+          
+            Continue →
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- =========================================================
+     SCREEN 4 — SCORE
+     ========================================================= -->
+
+<section id="final" class="screen">
+<div class="container">
+    <div class="kicker">
+        THE FINAL AUDITION
+    </div>
+
+    <h2>
+        THE LAST SCENE
+    </h2>
+
+    <div class="divider"></div>
+
+    <div class="final-box">
+
+        <div
+            class="score"
+            id="finalScore"
+        >
+
+            0 / 22
+
+        </div>
+
+        <div
+            class="cert"
+            id="cert"
+        >
+          
+            LEADING MAN
+        </div>
+
+        <p class="quote">
+            “You've come so far...
+            <br>
+            are you ready for the finale?”
+        </p>
+
+        <p class="small">
+            You better be!
+        </p>
+
+        <button onclick="showReveal()">
+            Proceed to Act IV →
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- =========================================================
+     SCREEN 5 — ACT IV
+     ========================================================= -->
+
+<section id="reveal" class="screen">
+<div class="container">
+    <div class="kicker">
+        ACT IV
+    </div>
+
+    <h1
+        style="
+        font-size:clamp(50px,12vw,110px);
+        "
+    >
+        THE FINALE
+    </h1>
+    
+  <div class="divider"></div>
+
+    <p class="quote">
+        “Please close this screen.”
+    </p>
+  <p
+        style="
+        font-family:Cinzel;
+        letter-spacing:3px;
+        color:var(--gold-light);
+        font-size:20px;
+        "
+    >
+        YOUR FINAL SCENE IS WAITING OUTSIDE.
+
+    </p>
+
+    <div
+        style="
+        margin-top:40px;
+        font-size:42px;
+        "
+    >
+        ✦
+    </div>
+
+    <p
+        class="small"
+        style="margin-top:25px"
+    >
+        THE END — OR PERHAPS, JUST THE BEGINNING.
+    </p>
+</div>
+</section>
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script>
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+
+
+const questions = [
+    /* =====================================================
+       ACT 1 — HIM
+       ===================================================== */
+
+    {
+        act: "SCENE I — SHAURYA <3",
+        q: "What is Shaurya's natural habitat?",
+        o: [
+            "A Restaurant",
+            "A Bar with Beers",
+            "A Cinema Hall",
+            "In front of his Laptop"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE I — SHAURYA <3",
+        q: "Which of these would most likely not make Shaurya irrationally happy?",
+        o: [
+            "An offer letter from a big company.",
+            "A spiderman movie",
+            "A live portrait painting",
+            "A trip with only the boys"
+        ],
+        a: 2
+    },
+
+    {
+        act: "SCENE I — SHAURYA <3",
+        q: "What is one thing Shaurya can probably talk about for an unreasonable amount of time?",
+        o: [
+            "Football",
+            "The Placement Scenario",
+            "A New Avengers Movie",
+            "Simran"
+        ],
+        a: 1
+    },
+
+    {
+        act: "SCENE I — SHAURYA <3",
+        q: "If Shaurya were a warning label, what would it say?",
+        o: [
+            "Jaana Chapri",
+            "I love my girlfriend (and Claude)",
+            "Do Second",
+            "Aur Batao"
+        ],
+        a: 2
+    },
+
+    {
+        act: "SCENE I — SHAURYA <3",
+        q: "What is Shaurya's favourite place in the NITR Campus?",
+        o: [
+            "Ceramic Department",
+            "His Bed",
+            "Domino's",
+            "STS Benches"
+        ],
+        a: 1
+    },
+
+    {
+        act: "SCENE I — SHAURYA <3",
+        q: "What is Shaurya's biggest enemy?",
+        o: [
+            "Boredom",
+            "Hunger",
+            "Laziness",
+            "Low Battery"
+        ],
+        a: 3
+    },
+
+     {
+          act: "SCENE I — SHAURYA <3",
+          q: "What's one side of Shaurya that's only reserved for Simran?",
+          o:[
+               "Happy Shaurya",
+               "Angry Shaurya",
+               "Soft Shaurya",
+               "Proud Shaurya"
+          ],
+          a: 2
+     },
+
+    /* =====================================================
+       ACT 2 — HER
+       ===================================================== */
+
+    {
+        act: "SCENE II — SIMSIM!",
+        q: "What does Simran love almost as much as she loves Shauryaman?",
+        o: [
+            "Sleep",
+            "Drama",
+            "Silence",
+            "Being normal"
+        ],
+        a: 1
+    },
+
+    {
+        act: "SCENE II — SIMSIM!",
+        q: "What is Simran's most dangerous quality?",
+        o: [
+            "Over-Thinking",
+            "Over-Planning",
+            "Over-Emotional",
+            "All of the above"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE II — SIMSIM!",
+        q: "What was the first thing Simran ever wanted to become?",
+        o: [
+            "An Astronaut",
+            "A Teacher",
+            "An Engineer",
+            "A Witch"
+        ],
+        a: 1
+    },
+
+    {
+        act: "SCENE II — SIMSIM!",
+        q: "What does Simran do when she's stressed but doesn't want anyone to notice?",
+        o: [
+            "Sleep without alarms in complete darkness",
+            "Cry loudly and write poems in a diary",
+            "Clean and organise the whole room",
+            "Rant about it to Shauryaman"
+        ],
+        a: 2
+    },
+
+    {
+        act: "SCENE II — SIMSIM!",
+        q: "What is Simran's favourite way of being shown affection?",
+        o: [
+            "Grand romantic gestures",
+            "A trip to get coffee and waffles",
+            "A basket full of flowers",
+            "Words of affection and reassurance"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE II — SIMSIM!",
+        q: "What is one thing Simran would absolutely refuse to compromise on?",
+        o: [
+            "The things in her Amazon cart",
+            "Classes",
+            "Efforts for Shaurya",
+            "All of the above"
+        ],
+        a: 2
+    },
+
+    /* =====================================================
+       ACT 3 — US
+       ===================================================== */
+    {
+        act: "SCENE III — US :)",
+        q: "Who is more likely to remember a tiny detail from years ago?",
+        o: [
+            "Shauryaman",
+            "Simran",
+            "Neither",
+            "The Google Drive"
+        ],
+        a: 1
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "What is our relationship genre?",
+        o: [
+            "Documentary",
+            "Slow-Burn Romance",
+            "Thriller",
+            "Romantic Comedy"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "Who usually wins an argument?",
+        o: [
+            "Simran",
+            "The Girl Shaurya Loves",
+            "Miss Padhy",
+            "All of the Above"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "What is our most predictable date-night activity?",
+        o: [
+            "Candle-light dinner at an expensive restaurant",
+            "A walk in the park",
+            "Netflix & Chill with good food",
+            "Reading books to each other"
+        ],
+        a: 2
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "What was the moment when “you and me” started feeling like “us”?",
+        o: [
+            "When we got locked out of the library",
+            "Our first Cosmo together",
+            "When we danced to 'Faasle' - Nitrutsav",
+            "The day we had our first drinks together at Bolt"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "What is one thing about us that neither of us planned, but wouldn't change?",
+        o: [
+            "How comfortable we are with each other",
+            "How we love eating together",
+            "How we like watching movies together",
+            "How we can hold long conversations"
+        ],
+        a: 0
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "If we were a food item, what would we be?",
+        o: [
+            "Chai & Biscuits",
+            "Momos",
+            "Garlic Bread",
+            "Spicy Garlic Pasta"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "What is the most important thing about tonight?",
+        o: [
+            "The 22 Gifts",
+            "The Cake",
+            "The Theatrical Production",
+            "The fact that Simran loves Shaurya"
+        ],
+        a: 3
+    },
+
+    {
+        act: "SCENE III — US :)",
+        q: "Final question: after everything we've done together so far, how should the next act begin?",
+        o: [
+            "The Proposal",
+            "Something Spicy",
+            "Tickets to Bali",
+            "A full-body massage"
+        ],
+        a: 0
+    }
+];
+
+/* =========================================================
+   GAME VARIABLES
+   ========================================================= */
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+/* =========================================================
+   CHANGE SCREEN
+   ========================================================= */
+
+/* =========================================================
+   MUSIC ENGINE
+   ========================================================= */
+
+const bgMusic = document.getElementById("bgMusic");
+const musicToggle = document.getElementById("musicToggle");
+
+const musicTracks = {
+    opening: "music/opening.mp3",
+    him: "music/him.mp3",
+    her: "music/her.mp3",
+    us: "music/us.mp3",
+    finale: "music/finale.mp3"
+};
+
+let musicEnabled = true;
+let activeTrack = "";
+let fadeTimer = null;
+
+
+function fadeVolume(target, duration = 500) {
+
+    clearInterval(fadeTimer);
+
+    const start = bgMusic.volume;
+    const distance = target - start;
+
+    const steps = Math.max(1, Math.round(duration / 40));
+
+    let step = 0;
+
+    fadeTimer = setInterval(() => {
+
+        step++;
+
+        bgMusic.volume =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    start + distance * (step / steps)
+                )
+            );
+
+        if (step >= steps) {
+            clearInterval(fadeTimer);
+        }
+
+    }, 40);
+}
+
+
+function playMusic(name) {
+
+    if (!musicEnabled || !musicTracks[name]) {
+        return;
+    }
+
+    const track = musicTracks[name];
+
+    if (
+        activeTrack === track &&
+        !bgMusic.paused
+    ) {
+        return;
+    }
+
+    activeTrack = track;
+
+    fadeVolume(0, 300);
+
+    setTimeout(() => {
+
+        bgMusic.pause();
+
+        bgMusic.src = track;
+        bgMusic.currentTime = 0;
+        bgMusic.volume = 0;
+
+        bgMusic.play().catch(() => {
+            console.log(
+                "Music will begin after user interaction."
+            );
+        });
+
+        fadeVolume(0.52, 700);
+
+    }, 320);
+}
+
+
+/* =========================================================
+   MUSIC TOGGLE
+   ========================================================= */
+
+function toggleMusic() {
+
+    musicEnabled = !musicEnabled;
+
+    if (musicEnabled) {
+
+        musicToggle.textContent =
+            "♫ MUSIC ON";
+
+        if (activeTrack) {
+
+            bgMusic.play().catch(() => {});
+
+            fadeVolume(0.52, 500);
+        }
+
+    } else {
+
+        musicToggle.textContent =
+            "♫ MUSIC OFF";
+
+        fadeVolume(0, 350);
+
+        setTimeout(() => {
+
+            if (!musicEnabled) {
+                bgMusic.pause();
+            }
+
+        }, 380);
+    }
+}
+
+
+musicToggle.addEventListener(
+    "click",
+    toggleMusic
+);
+
+
+/* =========================================================
+   SCREEN SYSTEM
+   ========================================================= */
+
+function showScreen(id) {
+    document
+        .querySelectorAll(".screen")
+        .forEach(screen => {
+            screen.classList.remove("active");
+        });
+
+    document
+        .getElementById(id)
+        .classList.add("active");
+    window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   CINEMATIC TRANSITION
+   ========================================================= */
+
+function sceneTransition(
+    kicker,
+    title,
+    callback,
+    duration = 1500
+) {
+
+    const overlay =
+        document.getElementById(
+            "sceneTransition"
+        );
+
+    document.getElementById(
+        "transitionKicker"
+    ).textContent = kicker;
+
+    document.getElementById(
+        "transitionTitle"
+    ).textContent = title;
+
+    overlay.classList.add("show");
+
+    setTimeout(() => {
+
+        callback();
+
+        setTimeout(() => {
+            overlay.classList.remove("show");
+        }, 450);
+
+    }, duration);
+}
+
+/* =========================================================
+   OPENING
+   ========================================================= */
+
+function enterTheatre() {
+    playMusic("opening");
+    sceneTransition(
+        "THE GOLDEN 22",
+        "THE FINALE OF ACT III AWAITS",
+        () => {
+            showScreen("act0");
+        },
+        1050
+    );
+}
+
+/* =========================================================
+   START QUIZ
+   ========================================================= */
+
+function startGame() {
+    current = 0;
+    score = 0;
+    playMusic("him");
+    sceneTransition(
+        "SCENE I",
+        "SHAURYA <3",
+        () => {
+            showScreen("game");
+            renderQuestion();
+        },
+        1300
+    );
+}
+/* =========================================================
+   DISPLAY QUESTION
+   ========================================================= */
+
+function renderQuestion() {
+    answered = false;
+    const question = questions[current];
+    /*
+       Change ACT title
+    */
+    document
+        .getElementById("actLabel")
+        .textContent = question.act;
+    /*
+       Question number
+    */
+
+    document
+        .getElementById("qnum")
+        .textContent =
+        `QUESTION ${String(current + 1).padStart(2, "0")} / 22`;
+    /*
+       Score
+    */
+    document
+        .getElementById("scoreTop")
+        .textContent =
+        `SCORE: ${score}`;
+    /*
+       Progress bar
+    */
+    document
+        .getElementById("bar")
+        .style.width =
+        `${(current / questions.length) * 100}%`;
+    /*
+       Question text
+    */
+    document
+        .getElementById("question")
+        .textContent =
+        question.q;
+    /*
+       Clear previous feedback
+    */
+    document
+        .getElementById("feedback")
+        .textContent = "";
+    /*
+       Hide next button
+    */
+    document
+        .getElementById("next")
+        .classList.remove("show");
+    /*
+       Create options
+    */
+    const optionsBox =
+        document.getElementById("options");
+    optionsBox.innerHTML = "";
+    question.o.forEach((option, index) => {
+        const button =
+            document.createElement("button");
+        button.className = "option";
+        button.textContent = option;
+        button.onclick = () => {
+            answer(index, button);
+        };
+        optionsBox.appendChild(button);
+    });
+}
+
+/* =========================================================
+   CHECK ANSWER
+   ========================================================= */
+
+function answer(selectedIndex, selectedButton) {
+    /*
+       Prevent clicking twice
+    */
+    if (answered) {
+        return;
+    }
+    answered = true;
+    const question = questions[current];
+
+    /*
+       Show correct / wrong answers
+    */
+
+    document
+        .querySelectorAll(".option")
+        .forEach((button, index) => {
+            /*
+               Correct answer
+            */
+            if (index === question.a) {
+                button.classList.add("correct");
+            }
+
+            /*
+               Wrong selected answer
+            */
+            if (
+                index === selectedIndex &&
+                index !== question.a
+            ) {
+                button.classList.add("wrong");
+
+            }
+            button.disabled = true;
+
+        });
+
+    /*
+       Calculate score
+    */
+
+    if (selectedIndex === question.a) {
+        score++;
+        document
+            .getElementById("feedback")
+            .textContent =
+            "✓ Correct. The director approves.";
+    }
+
+    else {
+        document
+            .getElementById("feedback")
+            .textContent =
+            "✦ Incorrect. A devastating performance.";
+    }
+
+    /*
+       Update score
+    */
+
+    document
+        .getElementById("scoreTop")
+        .textContent =
+        `SCORE: ${score}`;
+
+    /*
+       Show continue button
+    */
+
+    document
+        .getElementById("next")
+        .classList.add("show");
+
+}
+
+
+/* =========================================================
+   NEXT QUESTION
+   ========================================================= */
+
+
+function nextQuestion() {
+
+    const previousAct =
+        questions[current].act;
+
+    current++;
+
+    if (current >= questions.length) {
+
+        finish();
+
+        return;
+    }
+
+    const nextAct =
+        questions[current].act;
+
+
+    /* SCENE I → SCENE II */
+
+    if (
+        nextAct !== previousAct &&
+        nextAct.includes("SCENE II")
+    ) {
+
+        playMusic("her");
+
+        sceneTransition(
+            "SCENE II",
+            "SIMSIM!",
+            renderQuestion,
+            1450
+        );
+
+        return;
+    }
+
+
+    /* SCENE II → SCENE III */
+
+    if (
+        nextAct !== previousAct &&
+        nextAct.includes("SCENE III")
+    ) {
+
+        playMusic("us");
+
+        sceneTransition(
+            "SCENE III",
+            "US :)",
+            renderQuestion,
+            1450
+        );
+
+        return;
+    }
+
+
+    renderQuestion();
+}
+
+/* =========================================================
+   FINISH GAME
+   ========================================================= */
+
+function finish() {
+     playMusic("finale");
+     
+    const percentage =
+        score / questions.length;
+    let certificate;
+    /*
+       Determine boyfriend rank
+    */
+    if (percentage === 1) {
+        certificate =
+            "THE GOLDEN BOYFRIEND";
+    }
+
+    else if (percentage >= 0.86) {
+        certificate =
+            "LEADING MAN";
+    }
+
+    else if (percentage >= 0.71) {
+        certificate =
+            "SUPPORTING ACTOR";
+    }
+
+    else if (percentage >= 0.51) {
+        certificate =
+            "SHOWING PROMISE";
+    }
+
+    else {
+        certificate =
+            "BACKGROUND CHARACTER";
+    }
+
+    /*
+       Show score
+    */
+
+    document
+        .getElementById("finalScore")
+        .textContent =
+        `${score} / ${questions.length}`;
+
+    /*
+       Show certificate
+    */
+
+    document
+        .getElementById("cert")
+        .textContent =
+        certificate;
+
+    /*
+       Show final screen
+    */
+
+    showScreen("final");
+
+}
+
+
+/* =========================================================
+   ACT IV REVEAL
+   ========================================================= */
+
+function showReveal() {
+
+    playMusic("finale");
+
+    sceneTransition(
+        "ACT IV",
+        "THE FINALE",
+        () => {
+
+            showScreen("reveal");
+
+            launchConfetti();
+
+        },
+        1200
+    );
+}
+
+/* =========================================================
+   CONFETTI
+   ========================================================= */
+
+function launchConfetti() {
+    const canvas =
+        document.getElementById("confetti");
+
+    const ctx =
+        canvas.getContext("2d");
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    /*
+       Create particles
+    */
+
+    let particles =
+        Array.from(
+            { length: 130 },
+            () => ({
+                x:
+                    Math.random() *
+                    canvas.width,
+                y:
+                    -20 -
+                    Math.random() *
+                    canvas.height,
+                r:
+                    2 +
+                    Math.random() * 4,
+                v:
+                    1 +
+                    Math.random() * 4,
+                s:
+                    (Math.random() - 0.5) * 2
+            })
+        );
+
+    let frame = 0;
+
+    function animate() {
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        particles.forEach(p => {
+
+            /*
+               Move particle
+            */
+            p.y += p.v;
+            p.x += p.s;
+
+            /*
+               Random colours
+            */
+
+            const colors = [
+                "#d9b76a",
+                "#f4ead4",
+                "#7a171c"
+            ];
+
+            ctx.fillStyle =
+                colors[
+                    Math.floor(
+                        Math.random() *
+                        colors.length
+                    )
+                ];
+
+            /*
+               Draw particle
+            */
+
+            ctx.fillRect(
+                p.x,
+                p.y,
+                p.r,
+                p.r
+            );
+
+        });
+
+        frame++;
+
+        /*
+           Stop after a while
+        */
+
+        if (frame < 220) {
+            requestAnimationFrame(animate);
+        }
+    }
+
+    animate();
+}
+
+</script>
+
+</body>
+
+</html>
